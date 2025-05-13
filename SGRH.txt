@@ -1,0 +1,279 @@
+Entre as duas ideias — um **site de vendas com emissão de nota** e um **sistema de gerenciamento de funcionários do RH** — **o sistema de RH provavelmente é o melhor para aprender e aplicar os conceitos de POO (Programação Orientada a Objetos)** como:
+
+* **Associação de classes** (ex: Funcionário → Cargo, Departamento)
+* **Herança** (ex: Funcionário como classe base e subclasses como Gerente, Estagiário, Terceirizado)
+* **Sobrescrita de métodos** (ex: cada tipo de funcionário pode calcular o salário de forma diferente)
+* **Sobrecarga de métodos** (ex: métodos de busca por nome, por CPF, etc.)
+* **Enum** (ex: enum para cargos, níveis hierárquicos, tipos de contrato)
+
+### Por que o sistema de RH é melhor para esses requisitos?
+
+1. **Mais clara estrutura de classes** — fácil aplicar herança e especializações.
+2. **Casos reais de regras de negócio** — como cálculos diferentes de salário, férias, etc.
+3. **Associação rica** — funcionários pertencem a departamentos, têm cargos, relatórios etc.
+4. **Simulação de rotinas administrativas** — ideal para testes e implementação de lógica.
+
+O sistema de vendas pode também aplicar esses conceitos, mas o de RH normalmente exige mais modelagem de domínio com comportamentos variados entre classes, o que força o uso de herança, sobrescrita, enums etc.
+
+Você quer ajuda para começar a modelagem de classes do sistema de RH?
+
+/**
+ * Sistema de Gerenciamento de RH - POO
+ * Atende a requisitos: associação, herança, sobrescrita, sobrecarga e enum
+ */
+
+// Enums para valores fixos
+export enum Gender {
+  M = 'M',
+  F = 'F',
+  O = 'O',
+}
+
+export enum StatusEmployee {
+  ATIVO = 'ATIVO',
+  INATIVO = 'INATIVO',
+  DEMITIDO = 'DEMITIDO',
+}
+
+export enum EventType {
+  PROMOCAO = 'Promoção',
+  TRANSFERENCIA = 'Transferência',
+  ADVERTENCIA = 'Advertência',
+}
+
+// Classe base (Herança)
+export class Person {
+  protected name: string;
+  protected CPF: string;
+  protected dateOfBirth: Date;
+
+  constructor(name: string, CPF: string, dateOfBirth: Date) {
+    this.name = name;
+    this.CPF = CPF;
+    this.dateOfBirth = dateOfBirth;
+  }
+
+  public getName(): string {
+    return this.name;
+  }
+
+  public getCPF(): string {
+    return this.CPF;
+  }
+
+  public getDateOfBirth(): string {
+    return this.dateOfBirth.toLocaleDateString('pt-BR');
+  }
+
+  // Sobre-escrita: toString pode ser extendido
+  public toString(): string {
+    return `Nome: ${this.name}, CPF: ${this.CPF}`;
+  }
+}
+
+// Associação: cargo do funcionário
+export class Position {
+  public title: string;
+  public description: string;
+  public salary: number;
+
+  constructor(title: string, description: string, salary: number) {
+    this.title = title;
+    this.description = description;
+    this.salary = salary;
+  }
+
+  public toString(): string {
+    return `${this.title} (R$ ${this.salary.toFixed(2)})`;
+  }
+}
+
+// Associação: histórico de eventos do funcionário
+export class EmployeeHistory {
+  public eventType: EventType;
+  public eventDate: Date;
+
+  constructor(eventType: EventType, eventDate: Date) {
+    this.eventType = eventType;
+    this.eventDate = eventDate;
+  }
+
+  public toString(): string {
+    return `${this.eventType} em ${this.eventDate.toLocaleDateString('pt-BR')}`;
+  }
+}
+
+// Herança: Employee estende Person
+export class Employee extends Person {
+  private telephone: string;
+  private email: string;
+  private gender: Gender;
+  private status: StatusEmployee;
+  private admissionDate: Date;
+  private resignationDate?: Date;
+  private position: Position;                 // Associação (composição)
+  private history: EmployeeHistory[] = [];     // Associação múltipla
+
+  // Sobre-carga de construtor
+  public constructor(
+    name: string,
+    CPF: string,
+    dateOfBirth: Date,
+    telephone: string,
+    email: string,
+    gender: Gender,
+    status: StatusEmployee,
+    admissionDate: Date,
+    position: Position
+  );
+  public constructor(
+    name: string,
+    CPF: string,
+    dateOfBirth: Date,
+    telephone: string,
+    email: string,
+    gender: Gender,
+    status: StatusEmployee,
+    admissionDate: Date,
+    position: Position,
+    resignationDate: Date
+  );
+  public constructor(
+    name: string,
+    CPF: string,
+    dateOfBirth: Date,
+    telephone: string,
+    email: string,
+    gender: Gender,
+    status: StatusEmployee,
+    admissionDate: Date,
+    position: Position,
+    resignationDate?: Date
+  ) {
+    super(name, CPF, dateOfBirth);
+    this.telephone = telephone;
+    this.email = email;
+    this.gender = gender;
+    this.status = status;
+    this.admissionDate = admissionDate;
+    this.position = position;
+    this.resignationDate = resignationDate;
+  }
+
+  // Getters e Setters (encapsulamento)
+  public getTelephone(): string { return this.telephone; }
+  public setTelephone(tel: string): void { this.telephone = tel; }
+
+  public getEmail(): string { return this.email; }
+  public setEmail(email: string): void { this.email = email; }
+
+  public getGender(): Gender { return this.gender; }
+  public setGender(gender: Gender): void { this.gender = gender; }
+
+  public getStatus(): StatusEmployee { return this.status; }
+  public setStatus(status: StatusEmployee): void { this.status = status; }
+
+  public getAdmissionDate(): string { return this.admissionDate.toLocaleDateString('pt-BR'); }
+  public setAdmissionDate(date: Date): void { this.admissionDate = date; }
+
+  public getResignationDate(): string | undefined {
+    return this.resignationDate ? this.resignationDate.toLocaleDateString('pt-BR') : undefined;
+  }
+  public setResignationDate(date: Date): void { this.resignationDate = date; }
+
+  public getPosition(): Position { return this.position; }
+  public setPosition(pos: Position): void { this.position = pos; }
+
+  public getHistory(): EmployeeHistory[] { return this.history; }
+  public addHistory(entry: EmployeeHistory): void { this.history.push(entry); }
+
+  // Sobre-escrita: toString inclui cargo e status
+  public toString(): string {
+    return `${super.toString()}, Cargo: ${this.position.title}, Status: ${this.status}`;
+  }
+
+  // Sobre-carga de método: calcular tempo de empresa
+  public getTenure(): number;
+  public getTenure(onDate: Date): number;
+  public getTenure(onDate?: Date): number {
+    const end = onDate ?? new Date();
+    const diff = end.getTime() - this.admissionDate.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24 * 30)); // meses completos
+  }
+}
+
+// Exemplo de uso
+// ----------------
+// Importações hipotéticas
+// import { Gender, StatusEmployee, EventType } from './enum';
+// import { Position, EmployeeHistory, Employee } from './models';
+
+// Cria um cargo
+const devPosition = new Position('Desenvolvedor', 'Desenvolve aplicações', 8000);
+
+// Cria histórico de eventos
+const promoHistory = new EmployeeHistory(EventType.PROMOCAO, new Date(2025, 0, 15));
+const transferHistory = new EmployeeHistory(EventType.TRANSFERENCIA, new Date(2025, 3, 1));
+
+// Instancia funcionário sem data de demissão
+const funcionario = new Employee(
+  'Ana Silva',
+  '12345678900',
+  new Date(1992, 5, 20),
+  '11988887777',
+  'ana.silva@example.com',
+  Gender.F,
+  StatusEmployee.ATIVO,
+  new Date(2023, 0, 10),
+  devPosition
+);
+
+// Adiciona eventos ao histórico
+funcionario.addHistory(promoHistory);
+funcionario.addHistory(transferHistory);
+
+// Obtém informações formatadas
+console.log(funcionario.toString()); // Nome: Ana Silva, CPF: 12345678900, Cargo: Desenvolvedor, Status: ATIVO
+console.log('Tempo de casa (meses):', funcionario.getTenure());
+console.log('Histórico de eventos:');
+funcionario.getHistory().forEach(entry => console.log(' -', entry.toString()));
+
+
+
+
+
+
+
+
+// Cria um cargo
+const devPosition = new Position('Desenvolvedor', 'Desenvolve aplicações', 8000);
+
+// Cria histórico de eventos
+const promoHistory = new EmployeeHistory(EventType.PROMOCAO, new Date(2025, 0, 15));
+const transferHistory = new EmployeeHistory(EventType.TRANSFERENCIA, new Date(2025, 3, 1));
+
+// Instancia funcionário sem data de demissão
+const funcionario = new Employee(
+  'Ana Silva',
+  '12345678900',
+  new Date(1992, 5, 20),
+  '11988887777',
+  'ana.silva@example.com',
+  Gender.F,
+  StatusEmployee.ATIVO,
+  new Date(2023, 0, 10),
+  devPosition
+);
+
+// Adiciona eventos ao histórico
+funcionario.addHistory(promoHistory);
+funcionario.addHistory(transferHistory);
+
+// Obtém informações formatadas
+console.log(funcionario.toString()); 
+// Nome: Ana Silva, CPF: 12345678900, Cargo: Desenvolvedor, Status: ATIVO
+
+console.log('Tempo de casa (meses):', funcionario.getTenure());
+console.log('Histórico de eventos:');
+funcionario.getHistory().forEach(entry => console.log(' -', entry.toString()));
+
